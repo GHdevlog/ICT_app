@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "952328051951",
+    "project_id": "ict-flutter-app",
+    "storage_bucket": "ict-flutter-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:952328051951:android:5230111ecf00d035628f1a",
+        "android_client_info": {
+          "package_name": "com.example.ict_face_recog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2y2mcLlGhoMi2v8sgjnhSP_GRbIU27Qw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
