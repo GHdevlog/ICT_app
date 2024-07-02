@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'SignUpPage.dart'; // 회원가입 페이지를 import
+import 'HomePage.dart';
+import 'SignUpPage.dart'; // 홈 페이지를 import
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -26,8 +27,11 @@ class _SignInPageState extends State<SignInPage> {
       setState(() {
         _statusMessage = '로그인 성공!';
       });
-      // 로그인 성공 시 이전 페이지로 돌아가기
-      Navigator.pop(context);
+      // 로그인 성공 시 홈 페이지로 이동
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
     } on FirebaseAuthException catch (e) {
       setState(() {
         _statusMessage = e.message ?? '로그인 실패';
@@ -48,12 +52,6 @@ class _SignInPageState extends State<SignInPage> {
       home: Scaffold(
         appBar: AppBar(
           title: Text('로그인'),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),

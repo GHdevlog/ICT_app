@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'DiaryPage.dart';
 import 'FindLostPetPage.dart';
 import 'RegisterPetPage.dart';
 import 'SignInPage.dart';
@@ -19,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   static const List<Widget> _pages = <Widget>[
     RegisterPetPage(),
     FindLostPetPage(),
+    DiaryPage(),
     // 추가할 다른 페이지도 여기에 추가
   ];
 
@@ -59,6 +61,11 @@ class _HomePageState extends State<HomePage> {
   void _signOut() async {
     await FirebaseAuth.instance.signOut();
     print('사용자가 로그아웃했습니다.');
+    // 로그아웃 후 로그인 페이지로 이동하면서 뒤로가기 스택 비우기
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => SignInPage()),
+    );
   }
 
 
@@ -99,6 +106,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: '실종 반려동물',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.book_outlined),
+            label: '다이어리',
           ),
           // 추가할 다른 항목도 여기에 추가
         ],
