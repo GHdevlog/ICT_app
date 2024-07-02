@@ -51,7 +51,7 @@ class _SignInPageState extends State<SignInPage> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('로그인'),
+          title: const Text('로그인'),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -64,7 +64,7 @@ class _SignInPageState extends State<SignInPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
                     controller: _emailController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "Email",
                       hintText: "example@example.com",
                       border: OutlineInputBorder(),
@@ -73,12 +73,12 @@ class _SignInPageState extends State<SignInPage> {
                 ),
               ),
               Card(
-                margin: EdgeInsets.only(bottom: 16.0),
+                margin: const EdgeInsets.only(bottom: 16.0),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
                     controller: _passwordController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "Password",
                       hintText: "Enter your password",
                       border: OutlineInputBorder(),
@@ -89,21 +89,21 @@ class _SignInPageState extends State<SignInPage> {
               ),
               ElevatedButton(
                 onPressed: _signIn,
-                child: Text("Sign In"),
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
                 ),
+                child: const Text("Sign In"),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 _statusMessage,
                 style: TextStyle(color: Colors.red),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: _navigateToSignUpPage,
-                child: Text("계정이 없으신가요? 회원가입"),
+                child: const Text("계정이 없으신가요? 회원가입"),
               ),
             ],
           ),

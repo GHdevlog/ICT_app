@@ -17,12 +17,16 @@ class _DiaryPageState extends State<DiaryPage> {
   final FirebaseFirestore db = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
   DateTime _selectedDate = DateTime.now();
+  DateTime _focusedDate = DateTime.now();
   String? userId;
+  Map<DateTime, List<dynamic>> _events = {};
+  final DateTime _firstDay = DateTime.utc(2000, 1, 1);
+  final DateTime _lastDay = DateTime.utc(2100, 12, 31);
 
   @override
   void initState() {
     super.initState();
-    initializeDateFormatting(); // 날짜 형식 초기화
+    initializeDateFormatting();
     _getCurrentUser();
   }
 
@@ -33,8 +37,31 @@ class _DiaryPageState extends State<DiaryPage> {
         userId = user.uid;
       });
       print("Current user ID: $userId");
+      _loadDiaryEntries(_focusedDate);
     } else {
       print("No user is currently signed in.");
+    }
+  }
+
+  Future<void> _loadDiaryEntries(DateTime focusedDate) async {
+    if (userId != null) {
+      final startOfMonth = DateTime(focusedDate.year, focusedDate.month, 1);
+      final endOfMonth = DateTime(focusedDate.year, focusedDate.month + 1, 0);
+
+      db.collection('users').doc(userId).collection('diaries')
+          .where('date', isGreaterThanOrEqualTo: startOfMonth)
+          .where('date', isLessThanOrEqualTo: endOfMonth)
+          .get().then((snapshot) {
+        setState(() {
+          _events = {
+            for (var doc in snapshot.docs)
+              DateTime((doc['date'] as Timestamp).toDate().year, (doc['date'] as Timestamp).toDate().month, (doc['date'] as Timestamp).toDate().day):
+              List.generate(1, (index) => doc['title']),
+          };
+        });
+      }).catchError((e) {
+        print("Failed to load diary entries: $e");
+      });
     }
   }
 
@@ -48,6 +75,7 @@ class _DiaryPageState extends State<DiaryPage> {
           'createdAt': Timestamp.now(),
         });
         print("Diary entry added for user ID: $userId");
+        _loadDiaryEntries(_focusedDate);
       } catch (e) {
         print("Failed to add diary entry: $e");
       }
@@ -59,6 +87,7 @@ class _DiaryPageState extends State<DiaryPage> {
       try {
         await db.collection('users').doc(userId).collection('diaries').doc(id).delete();
         print("Diary entry deleted for user ID: $userId");
+        _loadDiaryEntries(_focusedDate);
       } catch (e) {
         print("Failed to delete diary entry: $e");
       }
@@ -72,21 +101,21 @@ class _DiaryPageState extends State<DiaryPage> {
         final TextEditingController _popupTitleController = TextEditingController();
         final TextEditingController _popupContentController = TextEditingController();
         return AlertDialog(
-          title: Text('일기 추가'),
+          title: const Text('일기 추가'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: _popupTitleController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: '제목을 입력하세요',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 8.0),
+              const SizedBox(height: 8.0),
               TextField(
                 controller: _popupContentController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: '내용을 입력하세요',
                   border: OutlineInputBorder(),
                 ),
@@ -98,14 +127,14 @@ class _DiaryPageState extends State<DiaryPage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('취소'),
+              child: const Text('취소'),
             ),
             TextButton(
               onPressed: () {
                 _addDiaryEntry(_popupTitleController.text, _popupContentController.text);
                 Navigator.of(context).pop();
               },
-              child: Text('추가'),
+              child: const Text('추가'),
             ),
           ],
         );
@@ -125,7 +154,7 @@ class _DiaryPageState extends State<DiaryPage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('닫기'),
+              child: const Text('닫기'),
             ),
           ],
         );
@@ -137,24 +166,32 @@ class _DiaryPageState extends State<DiaryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Diary'),
+        title: const Text('Diary'),
       ),
       body: Column(
         children: [
           TableCalendar(
-            locale: 'ko_KR', // 한글 설정
-            firstDay: DateTime(2000),
-            lastDay: DateTime(2100),
-            focusedDay: _selectedDate,
+            locale: 'ko_KR',
+            firstDay: _firstDay,
+            lastDay: _lastDay,
+            focusedDay: _focusedDate,
             selectedDayPredicate: (day) {
               return isSameDay(_selectedDate, day);
             },
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
                 _selectedDate = selectedDay;
+                _focusedDate = focusedDay;
               });
             },
-            calendarStyle: CalendarStyle(
+            onPageChanged: (focusedDay) {
+              setState(() {
+                _focusedDate = focusedDay;
+                _loadDiaryEntries(_focusedDate); // 페이지가 변경될 때마다 데이터 다시 불러오기
+              });
+            },
+            calendarStyle: const CalendarStyle(
+              cellMargin: EdgeInsets.symmetric(vertical: 8.0),
               todayDecoration: BoxDecoration(
                 color: Colors.blue,
                 shape: BoxShape.circle,
@@ -164,19 +201,60 @@ class _DiaryPageState extends State<DiaryPage> {
                 shape: BoxShape.circle,
               ),
             ),
-            headerStyle: HeaderStyle(
-              formatButtonVisible: false, // 2weeks 제거
+            headerStyle: const HeaderStyle(
+              formatButtonVisible: false,
               titleCentered: true,
             ),
+            daysOfWeekHeight: 20 * MediaQuery.of(context).textScaler.textScaleFactor,
+            calendarBuilders: CalendarBuilders(
+              defaultBuilder: (context, day, focusedDay) {
+                if (day.weekday == DateTime.saturday) {
+                  return Center(
+                    child: Text(
+                      '${day.day}',
+                      style: const TextStyle(color: Colors.blue),
+                    ),
+                  );
+                } else if (day.weekday == DateTime.sunday) {
+                  return Center(
+                    child: Text(
+                      '${day.day}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
+                return null;
+              },
+              markerBuilder: (context, day, events) {
+                if (events.isNotEmpty) {
+                  return Positioned(
+                    bottom: 1,
+                    child: _buildEventsMarker(day, events),
+                  );
+                }
+                return null;
+              },
+            ),
+            eventLoader: (day) {
+              DateTime dayWithoutTime = DateTime(day.year, day.month, day.day);
+              return _events[dayWithoutTime] ?? [];
+            },
           ),
           Expanded(
             child: userId == null
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : StreamBuilder<QuerySnapshot>(
-              stream: db.collection('users').doc(userId).collection('diaries').orderBy('createdAt', descending: true).snapshots(),
+              stream: db
+                  .collection('users')
+                  .doc(userId)
+                  .collection('diaries')
+                  .where('date', isGreaterThanOrEqualTo: DateTime(_focusedDate.year, _focusedDate.month, 1))
+                  .where('date', isLessThanOrEqualTo: DateTime(_focusedDate.year, _focusedDate.month + 1, 0))
+                  .orderBy('date', descending: true)
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
                 final documents = snapshot.data!.docs;
                 return ListView.builder(
@@ -188,7 +266,7 @@ class _DiaryPageState extends State<DiaryPage> {
                       subtitle: Text(doc['date'].toDate().toString()),
                       onTap: () => _showDiaryContentDialog(doc['title'], doc['content']),
                       trailing: IconButton(
-                        icon: Icon(Icons.delete),
+                        icon: const Icon(Icons.delete),
                         onPressed: () => _deleteDiaryEntry(doc.id),
                       ),
                     );
@@ -201,7 +279,27 @@ class _DiaryPageState extends State<DiaryPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddEntryDialog,
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildEventsMarker(DateTime date, List events) {
+    return Container(
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.red,
+      ),
+      width: 16.0,
+      height: 16.0,
+      child: Center(
+        child: Text(
+          '${events.length}',
+          style: const TextStyle().copyWith(
+            color: Colors.white,
+            fontSize: 12.0,
+          ),
+        ),
       ),
     );
   }
