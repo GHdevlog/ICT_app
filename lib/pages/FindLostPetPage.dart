@@ -54,30 +54,30 @@ class _FindLostPetPageState extends State<FindLostPetPage> {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        return Container(
+        return SizedBox(
           height: 200,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ListTile(
-                leading: Icon(Icons.camera_alt),
-                title: Text('카메라로 촬영하기'),
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('카메라로 촬영하기'),
                 onTap: () async {
                   Navigator.pop(context);
                   await _pickImageFromCamera();
                 },
               ),
               ListTile(
-                leading: Icon(Icons.image),
-                title: Text('갤러리에서 선택하기'),
+                leading: const Icon(Icons.image),
+                title: const Text('갤러리에서 선택하기'),
                 onTap: () async {
                   Navigator.pop(context);
                   await _pickImageFromGallery();
                 },
               ),
               ListTile(
-                leading: Icon(Icons.close),
-                title: Text('취소'),
+                leading: const Icon(Icons.close),
+                title: const Text('취소'),
                 onTap: () {
                   Navigator.pop(context);
                 },

@@ -83,7 +83,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
               Card(
-                margin: EdgeInsets.only(bottom: 16.0),
+                margin: const EdgeInsets.only(bottom: 16.0),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
@@ -122,7 +122,7 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 20),
               Text(
                 _statusMessage,
-                style: TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red),
                 textAlign: TextAlign.center,
               ),
             ],

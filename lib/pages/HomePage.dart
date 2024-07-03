@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
         actions: [
           _user == null
               ? TextButton.icon(
-            icon: Icon(Icons.person, color: Colors.black),
+            icon: const Icon(Icons.person, color: Colors.black),
             label: const Text(
               '로그인',
               style: TextStyle(color: Colors.black),
@@ -85,7 +85,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: _navigateToSignInPage,
           )
               : TextButton.icon(
-            icon: Icon(Icons.logout, color: Colors.black),
+            icon: const Icon(Icons.logout, color: Colors.black),
             label: const Text(
               '로그아웃',
               style: TextStyle(color: Colors.black),

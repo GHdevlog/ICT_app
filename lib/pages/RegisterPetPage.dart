@@ -54,24 +54,24 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ListTile(
-                leading: Icon(Icons.camera_alt),
-                title: Text('카메라로 촬영하기'),
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('카메라로 촬영하기'),
                 onTap: () async {
                   Navigator.pop(context);
                   await _pickImageFromCamera();
                 },
               ),
               ListTile(
-                leading: Icon(Icons.image),
-                title: Text('갤러리에서 선택하기'),
+                leading: const Icon(Icons.image),
+                title: const Text('갤러리에서 선택하기'),
                 onTap: () async {
                   Navigator.pop(context);
                   await _pickImageFromGallery();
                 },
               ),
               ListTile(
-                leading: Icon(Icons.close),
-                title: Text('취소'),
+                leading: const Icon(Icons.close),
+                title: const Text('취소'),
                 onTap: () {
                   Navigator.pop(context);
                 },
@@ -114,7 +114,6 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         Fluttertoast.showToast(msg: "파일 업로드 실패: ${jsonResponse['error']}");
       }
     } catch (e) {
-      print(e);
       Fluttertoast.showToast(msg: "서버에 연결할 수 없습니다: $e");
     }
   }

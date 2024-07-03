@@ -97,7 +97,7 @@ class _SignInPageState extends State<SignInPage> {
               const SizedBox(height: 20),
               Text(
                 _statusMessage,
-                style: TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
