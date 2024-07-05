@@ -30,7 +30,7 @@ class _SignInPageState extends State<SignInPage> {
       // 로그인 성공 시 홈 페이지로 이동
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => const HomePage()),
       );
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -42,7 +42,7 @@ class _SignInPageState extends State<SignInPage> {
   void _navigateToSignUpPage() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SignUpPage()),
+      MaterialPageRoute(builder: (context) => const SignUpPage()),
     );
   }
 
@@ -59,7 +59,7 @@ class _SignInPageState extends State<SignInPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Card(
-                margin: EdgeInsets.only(bottom: 16.0),
+                margin: const EdgeInsets.only(bottom: 16.0),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(

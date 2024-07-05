@@ -166,7 +166,7 @@ class _DiaryPageState extends State<DiaryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Diary'),
+        title: const Text('다이어리'),
       ),
       body: Column(
         children: [
@@ -190,6 +190,15 @@ class _DiaryPageState extends State<DiaryPage> {
                 _loadDiaryEntries(_focusedDate); // 페이지가 변경될 때마다 데이터 다시 불러오기
               });
             },
+            eventLoader: (day) {
+              DateTime dayWithoutTime = DateTime(day.year, day.month, day.day);
+              return _events[dayWithoutTime] ?? [];
+            },
+            daysOfWeekHeight: 20 * MediaQuery.of(context).textScaler.textScaleFactor,
+            headerStyle: const HeaderStyle(
+              formatButtonVisible: false,
+              titleCentered: true,
+            ),
             calendarStyle: const CalendarStyle(
               cellMargin: EdgeInsets.symmetric(vertical: 8.0),
               todayDecoration: BoxDecoration(
@@ -200,26 +209,37 @@ class _DiaryPageState extends State<DiaryPage> {
                 color: Colors.orange,
                 shape: BoxShape.circle,
               ),
+              defaultTextStyle: TextStyle(
+                fontSize: 18.0, // 기본 날짜 텍스트 크기 설정
+              ),
+              outsideTextStyle: TextStyle(
+                fontSize: 16.0, // 다른 달의 날짜 텍스트 크기 설정
+                color: Colors.grey,
+              ),
+              tableBorder: TableBorder(
+                top: BorderSide(color: Colors.black),
+                right: BorderSide(color: Colors.black12),
+                bottom: BorderSide(color: Colors.black),
+                left: BorderSide(color: Colors.black12),
+                horizontalInside: BorderSide(color: Colors.black12),
+                verticalInside: BorderSide(color: Colors.black12),
+                borderRadius: BorderRadius.zero,
+              ),
             ),
-            headerStyle: const HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-            ),
-            daysOfWeekHeight: 20 * MediaQuery.of(context).textScaler.textScaleFactor,
             calendarBuilders: CalendarBuilders(
               defaultBuilder: (context, day, focusedDay) {
                 if (day.weekday == DateTime.saturday) {
                   return Center(
                     child: Text(
                       '${day.day}',
-                      style: const TextStyle(color: Colors.blue),
+                      style: const TextStyle(color: Colors.blue, fontSize: 18.0),
                     ),
                   );
                 } else if (day.weekday == DateTime.sunday) {
                   return Center(
                     child: Text(
                       '${day.day}',
-                      style: const TextStyle(color: Colors.red),
+                      style: const TextStyle(color: Colors.red, fontSize: 18.0),
                     ),
                   );
                 }
@@ -228,18 +248,17 @@ class _DiaryPageState extends State<DiaryPage> {
               markerBuilder: (context, day, events) {
                 if (events.isNotEmpty) {
                   return Positioned(
-                    bottom: 1,
+                    bottom: 5,
+                    right: 8,
                     child: _buildEventsMarker(day, events),
                   );
                 }
                 return null;
               },
             ),
-            eventLoader: (day) {
-              DateTime dayWithoutTime = DateTime(day.year, day.month, day.day);
-              return _events[dayWithoutTime] ?? [];
-            },
           ),
+
+
           Expanded(
             child: userId == null
                 ? const Center(child: CircularProgressIndicator())
@@ -290,17 +309,17 @@ class _DiaryPageState extends State<DiaryPage> {
         shape: BoxShape.circle,
         color: Colors.red,
       ),
-      width: 16.0,
-      height: 16.0,
-      child: Center(
-        child: Text(
-          '${events.length}',
-          style: const TextStyle().copyWith(
-            color: Colors.white,
-            fontSize: 12.0,
-          ),
-        ),
-      ),
+      width: 10.0,
+      height: 10.0,
+      // child: Center(
+      //   child: Text(
+      //     '${events.length}',
+      //     style: const TextStyle().copyWith(
+      //       color: Colors.white,
+      //       fontSize: 12.0,
+      //     ),
+      //   ),
+      // ),
     );
   }
 }
