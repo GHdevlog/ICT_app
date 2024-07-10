@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ict_face_recog/models/pet.dart';
-import '../wigets/pet_grid_item.dart';
+import '../widgets/pet_grid_item.dart';
 import 'PetDetailPage.dart';
 
 class RegisterPetPage extends StatefulWidget {
@@ -15,6 +15,7 @@ class RegisterPetPage extends StatefulWidget {
 class _RegisterPetPageState extends State<RegisterPetPage> {
   final List<Pet> _pets = [];
   final ImagePicker _picker = ImagePicker();
+  bool _isDeleteMode = false;
 
   void _showAddPetDialog() {
     String newPetName = '';
@@ -57,13 +58,27 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
     );
   }
 
-  void _openPetDetailPage(Pet pet) {
-    Navigator.push(
+  void _openPetDetailPage(Pet pet) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PetDetailPage(pet: pet),
       ),
     );
+    setState(() {});
+  }
+
+  void _toggleDeleteMode() {
+    setState(() {
+      _isDeleteMode = !_isDeleteMode;
+    });
+  }
+
+  void _deletePet(int index) {
+    setState(() {
+      _pets.removeAt(index);
+      Fluttertoast.showToast(msg: "반려동물이 삭제되었습니다.");
+    });
   }
 
   @override
@@ -71,6 +86,12 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('반려동물 등록하기'),
+        actions: [
+          IconButton(
+            icon: Icon(_isDeleteMode ? Icons.delete_forever : Icons.delete),
+            onPressed: _toggleDeleteMode,
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -106,9 +127,11 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
                       ),
                     );
                   } else {
-                    return GestureDetector(
+                    return PetGridItem(
+                      pet: _pets[index],
+                      isDeleteMode: _isDeleteMode,
+                      onDelete: () => _deletePet(index),
                       onTap: () => _openPetDetailPage(_pets[index]),
-                      child: PetGridItem(pet: _pets[index]),
                     );
                   }
                 },

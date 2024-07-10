@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
-import '../models/pet.dart';
+import 'package:ict_face_recog/models/pet.dart';
 
 class PetDetailPage extends StatefulWidget {
   final Pet pet;
 
-  const PetDetailPage({super.key, required this.pet});
+  const PetDetailPage({Key? key, required this.pet}) : super(key: key);
 
   @override
   _PetDetailPageState createState() => _PetDetailPageState();
@@ -16,6 +16,7 @@ class PetDetailPage extends StatefulWidget {
 
 class _PetDetailPageState extends State<PetDetailPage> {
   final ImagePicker _picker = ImagePicker();
+  bool _isDeleteMode = false;
 
   Future<void> _addImageFromGallery() async {
     final List<XFile>? images = await _picker.pickMultiImage();
@@ -107,6 +108,12 @@ class _PetDetailPageState extends State<PetDetailPage> {
     );
   }
 
+  void _toggleDeleteMode() {
+    setState(() {
+      _isDeleteMode = !_isDeleteMode;
+    });
+  }
+
   void _deleteImage(int index) {
     setState(() {
       widget.pet.images.removeAt(index);
@@ -126,6 +133,12 @@ class _PetDetailPageState extends State<PetDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.pet.name),
+        actions: [
+          IconButton(
+            icon: Icon(_isDeleteMode ? Icons.delete_forever : Icons.delete),
+            onPressed: _toggleDeleteMode,
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -145,24 +158,32 @@ class _PetDetailPageState extends State<PetDetailPage> {
                     ),
                     itemCount: widget.pet.images.length,
                     itemBuilder: (context, index) {
-                      return GridTile(
-                        child: Stack(
-                          children: [
-                            Image.file(
+                      return Stack(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              // 이미지를 클릭했을 때의 동작을 여기에 추가할 수 있습니다.
+                            },
+                            child: Image.file(
                               File(widget.pet.images[index].path),
-                              height: 100,
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
                             ),
+                          ),
+                          if (_isDeleteMode)
                             Positioned(
-                              right: 0,
-                              child: IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () {
-                                  _deleteImage(index);
-                                },
+                              top: 8,
+                              right: 8,
+                              child: InkWell(
+                                onTap: () => _deleteImage(index),
+                                child: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                        ],
                       );
                     },
                   )
@@ -182,21 +203,27 @@ class _PetDetailPageState extends State<PetDetailPage> {
                     ),
                     itemCount: widget.pet.videos.length,
                     itemBuilder: (context, index) {
-                      return GridTile(
-                        child: Stack(
-                          children: [
-                            VideoPlayerWidget(file: File(widget.pet.videos[index].path)),
+                      return Stack(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              // 비디오를 클릭했을 때의 동작을 여기에 추가할 수 있습니다.
+                            },
+                            child: VideoPlayerWidget(file: File(widget.pet.videos[index].path)),
+                          ),
+                          if (_isDeleteMode)
                             Positioned(
-                              right: 0,
-                              child: IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () {
-                                  _deleteVideo(index);
-                                },
+                              top: 8,
+                              right: 8,
+                              child: InkWell(
+                                onTap: () => _deleteVideo(index),
+                                child: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                        ],
                       );
                     },
                   )

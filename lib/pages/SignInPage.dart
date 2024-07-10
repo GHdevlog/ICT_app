@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'HomePage.dart';
-import 'SignUpPage.dart'; // 홈 페이지를 import
+import 'SignUpPage.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});

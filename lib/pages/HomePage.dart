@@ -6,6 +6,7 @@ import 'FindLostPetPage.dart';
 import 'RegisterPetPage.dart';
 import 'SignInPage.dart';
 import 'SettingPage.dart';
+import 'WalkPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,6 +23,7 @@ class _HomePageState extends State<HomePage> {
     RegisterPetPage(),
     FindLostPetPage(),
     DiaryPage(),
+    WalkPage(),
     // 추가할 다른 페이지도 여기에 추가
   ];
 
@@ -75,6 +77,7 @@ class _HomePageState extends State<HomePage> {
         child: _pages.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.pets),
@@ -88,10 +91,16 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.book_outlined),
             label: '다이어리',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.directions_walk),
+            label: '산책',
+          ),
           // 추가할 다른 항목도 여기에 추가
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
         onTap: _onItemTapped,
       ),
     );
