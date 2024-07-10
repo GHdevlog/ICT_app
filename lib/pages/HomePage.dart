@@ -5,6 +5,7 @@ import 'DiaryPage.dart';
 import 'FindLostPetPage.dart';
 import 'RegisterPetPage.dart';
 import 'SignInPage.dart';
+import 'SettingPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -51,23 +52,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _navigateToSignInPage() {
+  void _navigateToSettingsPage() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SignInPage()),
+      MaterialPageRoute(builder: (context) => SettingsPage()),
     );
   }
-
-  void _signOut() async {
-    await FirebaseAuth.instance.signOut();
-    print('사용자가 로그아웃했습니다.');
-    // 로그아웃 후 로그인 페이지로 이동하면서 뒤로가기 스택 비우기
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => SignInPage()),
-    );
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -75,22 +65,9 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('SmileCompanion'),
         actions: [
-          _user == null
-              ? TextButton.icon(
-            icon: const Icon(Icons.person, color: Colors.black),
-            label: const Text(
-              '로그인',
-              style: TextStyle(color: Colors.black),
-            ),
-            onPressed: _navigateToSignInPage,
-          )
-              : TextButton.icon(
-            icon: const Icon(Icons.logout, color: Colors.black),
-            label: const Text(
-              '로그아웃',
-              style: TextStyle(color: Colors.black),
-            ),
-            onPressed: _signOut,
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: _navigateToSettingsPage,
           ),
         ],
       ),

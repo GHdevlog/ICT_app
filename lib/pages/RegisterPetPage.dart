@@ -1,10 +1,9 @@
-import 'dart:io';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ict_face_recog/models/pet.dart';
+import '../wigets/pet_grid_item.dart';
+import 'PetDetailPage.dart';
 
 class RegisterPetPage extends StatefulWidget {
   const RegisterPetPage({super.key});
@@ -14,114 +13,56 @@ class RegisterPetPage extends StatefulWidget {
 }
 
 class _RegisterPetPageState extends State<RegisterPetPage> {
-  List<XFile>? _images = [];
+  final List<Pet> _pets = [];
   final ImagePicker _picker = ImagePicker();
-  String? _uploadResult;
 
-  Future<void> _pickImageFromGallery() async {
-    final List<XFile>? images = await _picker.pickMultiImage();
+  void _showAddPetDialog() {
+    String newPetName = '';
 
-    if (images != null) {
-      setState(() {
-        _images = images;
-      });
-      Fluttertoast.showToast(msg: "이미지 선택 완료");
-    } else {
-      Fluttertoast.showToast(msg: "이미지 선택 취소");
-    }
-  }
-
-  Future<void> _pickImageFromCamera() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-
-    if (image != null) {
-      setState(() {
-        _images?.add(image);
-      });
-      Fluttertoast.showToast(msg: "이미지 촬영 완료");
-    } else {
-      Fluttertoast.showToast(msg: "이미지 촬영 취소");
-    }
-  }
-
-  void _showFilePickerBottomSheet() {
-    showModalBottomSheet(
+    showDialog(
       context: context,
       builder: (context) {
-        return Container(
-          height: 200,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('카메라로 촬영하기'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _pickImageFromCamera();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.image),
-                title: const Text('갤러리에서 선택하기'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _pickImageFromGallery();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.close),
-                title: const Text('취소'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
+        return AlertDialog(
+          title: const Text('새 반려동물 등록'),
+          content: TextField(
+            onChanged: (value) {
+              newPetName = value;
+            },
+            decoration: const InputDecoration(hintText: '반려동물 이름'),
           ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (newPetName.isNotEmpty) {
+                  setState(() {
+                    _pets.add(Pet(name: newPetName, images: [], videos: []));
+                  });
+                  Fluttertoast.showToast(msg: "새 반려동물 등록 완료");
+                  Navigator.of(context).pop();
+                } else {
+                  Fluttertoast.showToast(msg: "이름을 입력하세요");
+                }
+              },
+              child: const Text('확인'),
+            ),
+          ],
         );
       },
     );
   }
 
-  Future<void> _uploadFile() async {
-    if (_images == null || _images!.isEmpty) {
-      Fluttertoast.showToast(msg: "파일을 선택하세요");
-      return;
-    }
-
-    final request = http.MultipartRequest('POST', Uri.parse('http://192.168.10.20:5000/upload_images'));
-
-    for (var image in _images!) {
-      request.files.add(await http.MultipartFile.fromPath('files[]', image.path));
-    }
-
-    try {
-      final response = await request.send();
-
-      if (response.statusCode == 200) {
-        final responseData = await response.stream.bytesToString();
-        final jsonResponse = json.decode(responseData);
-        print("Response JSON: $jsonResponse");
-
-        setState(() {
-          _uploadResult = jsonResponse['message'];
-        });
-
-        Fluttertoast.showToast(msg: "파일 업로드 완료");
-      } else {
-        final responseData = await response.stream.bytesToString();
-        final jsonResponse = json.decode(responseData);
-        Fluttertoast.showToast(msg: "파일 업로드 실패: ${jsonResponse['error']}");
-      }
-    } catch (e) {
-      Fluttertoast.showToast(msg: "서버에 연결할 수 없습니다: $e");
-    }
-  }
-
-  void _viewUploadedImages() {
+  void _openPetDetailPage(Pet pet) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const UploadedImagesPage()),
+      MaterialPageRoute(
+        builder: (context) => PetDetailPage(pet: pet),
+      ),
     );
   }
 
@@ -135,116 +76,46 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            _images != null && _images!.isNotEmpty
-                ? Wrap(
-              children: _images!.map((image) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Image.file(
-                    File(image.path),
-                    height: 100,
-                  ),
-                );
-              }).toList(),
-            )
-                : Image.asset(
-              'assets/dog_silhouette.jpg', // 실루엣 이미지 경로
-              height: 200,
-            ),
-            const SizedBox(height: 20),
-            _images != null && _images!.isNotEmpty
-                ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                '선택된 파일: ${_images!.map((image) => image.name).join(', ')}',
-                textAlign: TextAlign.center,
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(16.0),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // 한 행에 두 개의 아이템을 표시
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
+                  childAspectRatio: 3 / 4, // 비율 설정으로 높이 조정
+                ),
+                itemCount: _pets.length + 1, // +1 to include the add button
+                itemBuilder: (context, index) {
+                  if (index == _pets.length) {
+                    return GestureDetector(
+                      onTap: _showAddPetDialog,
+                      child: GridTile(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.add,
+                              size: 50,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return GestureDetector(
+                      onTap: () => _openPetDetailPage(_pets[index]),
+                      child: PetGridItem(pet: _pets[index]),
+                    );
+                  }
+                },
               ),
-            )
-                : const Text('선택된 파일 없음'),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _showFilePickerBottomSheet,
-              child: _images == null || _images!.isEmpty
-                  ? const Text('등록할 이미지 선택하기')
-                  : const Text('다른 이미지 선택하기'),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _uploadFile,
-              child: const Text('파일 업로드하기'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _viewUploadedImages,
-              child: const Text('이전 업로드된 이미지 보기'),
-            ),
-            const SizedBox(height: 20),
-            _uploadResult != null
-                ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                '업로드 결과: $_uploadResult',
-                textAlign: TextAlign.center,
-              ),
-            )
-                : Container(),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class UploadedImagesPage extends StatefulWidget {
-  const UploadedImagesPage({super.key});
-
-  @override
-  State<UploadedImagesPage> createState() => _UploadedImagesPageState();
-}
-
-class _UploadedImagesPageState extends State<UploadedImagesPage> {
-  List<String> _imageUrls = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchUploadedImages();
-  }
-
-  Future<void> _fetchUploadedImages() async {
-    try {
-      final response = await http.get(Uri.parse('http://your-server-url/uploaded_images'));
-
-      if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
-        setState(() {
-          _imageUrls = List<String>.from(jsonResponse['images']);
-        });
-      } else {
-        Fluttertoast.showToast(msg: "이미지 목록을 가져오는 데 실패했습니다.");
-      }
-    } catch (e) {
-      print(e);
-      Fluttertoast.showToast(msg: "서버에 연결할 수 없습니다: $e");
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('이전 업로드된 이미지'),
-      ),
-      body: _imageUrls.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-        itemCount: _imageUrls.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.network(_imageUrls[index]),
-          );
-        },
       ),
     );
   }
