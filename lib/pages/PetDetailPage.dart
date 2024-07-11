@@ -8,7 +8,7 @@ import 'package:ict_face_recog/models/pet.dart';
 class PetDetailPage extends StatefulWidget {
   final Pet pet;
 
-  const PetDetailPage({Key? key, required this.pet}) : super(key: key);
+  const PetDetailPage({super.key, required this.pet});
 
   @override
   _PetDetailPageState createState() => _PetDetailPageState();
@@ -246,7 +246,7 @@ class _PetDetailPageState extends State<PetDetailPage> {
 class VideoPlayerWidget extends StatefulWidget {
   final File file;
 
-  const VideoPlayerWidget({Key? key, required this.file}) : super(key: key);
+  const VideoPlayerWidget({super.key, required this.file});
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();

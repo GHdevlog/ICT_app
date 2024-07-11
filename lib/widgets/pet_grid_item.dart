@@ -9,12 +9,12 @@ class PetGridItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const PetGridItem({
-    Key? key,
+    super.key,
     required this.pet,
     required this.isDeleteMode,
     required this.onDelete,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -39,18 +39,21 @@ class PetGridItem extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  pet.images.isNotEmpty
-                      ? Image.file(
-                    File(pet.images.first.path),
-                    height: 150,
-                    width: 150,
-                    fit: BoxFit.cover,
-                  )
-                      : Image.asset(
-                    'assets/dog_silhouette.jpg',
-                    height: 150,
-                    width: 150,
-                    fit: BoxFit.cover,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: pet.images.isNotEmpty
+                        ? Image.file(
+                      File(pet.images.first.path),
+                      height: 150,
+                      width: 150,
+                      fit: BoxFit.cover,
+                    )
+                        : Image.asset(
+                      'assets/dog_silhouette.jpg',
+                      height: 150,
+                      width: 150,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(pet.name, textAlign: TextAlign.center),
@@ -59,8 +62,8 @@ class PetGridItem extends StatelessWidget {
             ),
             if (isDeleteMode)
               Positioned(
-                top: 8,
-                right: 8,
+                top: 6,
+                right: 6,
                 child: InkWell(
                   onTap: onDelete,
                   child: const Icon(

@@ -98,15 +98,15 @@ class _DiaryPageState extends State<DiaryPage> {
     showDialog(
       context: context,
       builder: (context) {
-        final TextEditingController _popupTitleController = TextEditingController();
-        final TextEditingController _popupContentController = TextEditingController();
+        final TextEditingController popupTitleController = TextEditingController();
+        final TextEditingController popupContentController = TextEditingController();
         return AlertDialog(
           title: const Text('일기 추가'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: _popupTitleController,
+                controller: popupTitleController,
                 decoration: const InputDecoration(
                   labelText: '제목을 입력하세요',
                   border: OutlineInputBorder(),
@@ -114,7 +114,7 @@ class _DiaryPageState extends State<DiaryPage> {
               ),
               const SizedBox(height: 8.0),
               TextField(
-                controller: _popupContentController,
+                controller: popupContentController,
                 decoration: const InputDecoration(
                   labelText: '내용을 입력하세요',
                   border: OutlineInputBorder(),
@@ -131,7 +131,7 @@ class _DiaryPageState extends State<DiaryPage> {
             ),
             TextButton(
               onPressed: () {
-                _addDiaryEntry(_popupTitleController.text, _popupContentController.text);
+                _addDiaryEntry(popupTitleController.text, popupContentController.text);
                 Navigator.of(context).pop();
               },
               child: const Text('추가'),

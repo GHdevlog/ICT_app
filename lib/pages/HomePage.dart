@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'DiaryPage.dart';
 import 'FindLostPetPage.dart';
-import 'RegisterPetPage.dart';
-import 'SignInPage.dart';
+import 'PetRegisterPage.dart';
 import 'SettingPage.dart';
 import 'WalkPage.dart';
 
@@ -57,7 +56,7 @@ class _HomePageState extends State<HomePage> {
   void _navigateToSettingsPage() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SettingsPage()),
+      MaterialPageRoute(builder: (context) => const SettingsPage()),
     );
   }
 
