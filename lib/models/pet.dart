@@ -1,9 +1,13 @@
-import 'package:image_picker/image_picker.dart';
-
 class Pet {
-  final String name;
-  final List<XFile> images;
-  final List<XFile> videos;
+  String id;
+  String name;
+  List<String> images; // URL 리스트
+  List<String> videos; // URL 리스트
 
-  Pet({required this.name, required this.images, required this.videos});
+  Pet({
+    required this.id,
+    required this.name,
+    required this.images,
+    required this.videos,
+  });
 }

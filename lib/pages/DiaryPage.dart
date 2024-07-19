@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'DiaryEntryDialog.dart';
+import 'DiaryContentDialog.dart';
+import '../models/event_marker.dart';
 
 class DiaryPage extends StatefulWidget {
   const DiaryPage({super.key});
@@ -12,8 +15,6 @@ class DiaryPage extends StatefulWidget {
 }
 
 class _DiaryPageState extends State<DiaryPage> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _contentController = TextEditingController();
   final FirebaseFirestore db = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
   DateTime _selectedDate = DateTime.now();
@@ -65,23 +66,6 @@ class _DiaryPageState extends State<DiaryPage> {
     }
   }
 
-  Future<void> _addDiaryEntry(String title, String content) async {
-    if (title.isNotEmpty && content.isNotEmpty && userId != null) {
-      try {
-        await db.collection('users').doc(userId).collection('diaries').add({
-          'title': title,
-          'content': content,
-          'date': _selectedDate,
-          'createdAt': Timestamp.now(),
-        });
-        print("Diary entry added for user ID: $userId");
-        _loadDiaryEntries(_focusedDate);
-      } catch (e) {
-        print("Failed to add diary entry: $e");
-      }
-    }
-  }
-
   Future<void> _deleteDiaryEntry(String id) async {
     if (userId != null) {
       try {
@@ -92,74 +76,6 @@ class _DiaryPageState extends State<DiaryPage> {
         print("Failed to delete diary entry: $e");
       }
     }
-  }
-
-  void _showAddEntryDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        final TextEditingController popupTitleController = TextEditingController();
-        final TextEditingController popupContentController = TextEditingController();
-        return AlertDialog(
-          title: const Text('일기 추가'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: popupTitleController,
-                decoration: const InputDecoration(
-                  labelText: '제목을 입력하세요',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 8.0),
-              TextField(
-                controller: popupContentController,
-                decoration: const InputDecoration(
-                  labelText: '내용을 입력하세요',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('취소'),
-            ),
-            TextButton(
-              onPressed: () {
-                _addDiaryEntry(popupTitleController.text, popupContentController.text);
-                Navigator.of(context).pop();
-              },
-              child: const Text('추가'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showDiaryContentDialog(String title, String content) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('닫기'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -194,7 +110,7 @@ class _DiaryPageState extends State<DiaryPage> {
               DateTime dayWithoutTime = DateTime(day.year, day.month, day.day);
               return _events[dayWithoutTime] ?? [];
             },
-            daysOfWeekHeight: 20 * MediaQuery.of(context).textScaler.textScaleFactor,
+            daysOfWeekHeight: 20 * MediaQuery.of(context).textScaleFactor,
             headerStyle: const HeaderStyle(
               formatButtonVisible: false,
               titleCentered: true,
@@ -250,15 +166,13 @@ class _DiaryPageState extends State<DiaryPage> {
                   return Positioned(
                     bottom: 5,
                     right: 8,
-                    child: _buildEventsMarker(day, events),
+                    child: buildEventsMarker(day, events),
                   );
                 }
                 return null;
               },
             ),
           ),
-
-
           Expanded(
             child: userId == null
                 ? const Center(child: CircularProgressIndicator())
@@ -283,7 +197,7 @@ class _DiaryPageState extends State<DiaryPage> {
                     return ListTile(
                       title: Text(doc['title']),
                       subtitle: Text(doc['date'].toDate().toString()),
-                      onTap: () => _showDiaryContentDialog(doc['title'], doc['content']),
+                      onTap: () => showDiaryContentDialog(context, doc['title'], doc['content']),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () => _deleteDiaryEntry(doc.id),
@@ -297,29 +211,9 @@ class _DiaryPageState extends State<DiaryPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddEntryDialog,
+        onPressed: () => showAddEntryDialog(context, _selectedDate, userId, db, _loadDiaryEntries),
         child: const Icon(Icons.add),
       ),
-    );
-  }
-
-  Widget _buildEventsMarker(DateTime date, List events) {
-    return Container(
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.red,
-      ),
-      width: 10.0,
-      height: 10.0,
-      // child: Center(
-      //   child: Text(
-      //     '${events.length}',
-      //     style: const TextStyle().copyWith(
-      //       color: Colors.white,
-      //       fontSize: 12.0,
-      //     ),
-      //   ),
-      // ),
     );
   }
 }

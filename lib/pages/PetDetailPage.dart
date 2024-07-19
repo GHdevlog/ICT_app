@@ -1,14 +1,17 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 import 'package:ict_face_recog/models/pet.dart';
+import 'package:http/http.dart' as http;
 
 class PetDetailPage extends StatefulWidget {
   final Pet pet;
+  final String userId;
 
-  const PetDetailPage({super.key, required this.pet});
+  const PetDetailPage({Key? key, required this.pet, required this.userId}) : super(key: key);
 
   @override
   _PetDetailPageState createState() => _PetDetailPageState();
@@ -22,8 +25,9 @@ class _PetDetailPageState extends State<PetDetailPage> {
     final List<XFile>? images = await _picker.pickMultiImage();
 
     if (images != null && images.isNotEmpty) {
+      await _uploadMedia(widget.pet.id, images, true); // pet.id 사용
       setState(() {
-        widget.pet.images.addAll(images);
+        widget.pet.images.addAll(images.map((image) => image.path));
       });
       Fluttertoast.showToast(msg: "이미지 추가 완료");
     } else {
@@ -35,8 +39,9 @@ class _PetDetailPageState extends State<PetDetailPage> {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
+      await _uploadMedia(widget.pet.id, [image], true); // pet.id 사용
       setState(() {
-        widget.pet.images.add(image);
+        widget.pet.images.add(image.path);
       });
       Fluttertoast.showToast(msg: "이미지 촬영 완료");
     } else {
@@ -48,12 +53,42 @@ class _PetDetailPageState extends State<PetDetailPage> {
     final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
 
     if (video != null) {
+      await _uploadMedia(widget.pet.id, [video], false); // pet.id 사용
       setState(() {
-        widget.pet.videos.add(video);
+        widget.pet.videos.add(video.path);
       });
       Fluttertoast.showToast(msg: "비디오 추가 완료");
     } else {
       Fluttertoast.showToast(msg: "비디오 추가 취소");
+    }
+  }
+
+  Future<void> _uploadMedia(String petId, List<XFile> mediaFiles, bool isImage) async {
+    final uri = Uri.parse(isImage
+        ? 'http://192.168.10.20:5000/upload_images'
+        : 'http://192.168.10.20:5000/upload_videos');
+
+    var request = http.MultipartRequest('POST', uri);
+
+    for (var file in mediaFiles) {
+      request.files.add(await http.MultipartFile.fromPath('files[]', file.path));
+    }
+
+    request.fields['user_id'] = widget.userId;
+    request.fields['pet_id'] = petId;
+
+    try {
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        var responseData = await response.stream.bytesToString();
+        var jsonResponse = jsonDecode(responseData);
+        Fluttertoast.showToast(msg: jsonResponse['message']);
+      } else {
+        Fluttertoast.showToast(msg: '파일 업로드 실패');
+      }
+    } catch (e) {
+      Fluttertoast.showToast(msg: '서버에 연결할 수 없습니다: $e');
     }
   }
 
@@ -164,11 +199,18 @@ class _PetDetailPageState extends State<PetDetailPage> {
                             onTap: () {
                               // 이미지를 클릭했을 때의 동작을 여기에 추가할 수 있습니다.
                             },
-                            child: Image.file(
-                              File(widget.pet.images[index].path),
+                            child: Image.network(
+                              widget.pet.images[index],
                               height: 200,
                               width: double.infinity,
                               fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/dog_silhouette.jpg',
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                );
+                              },
                             ),
                           ),
                           if (_isDeleteMode)
@@ -209,7 +251,7 @@ class _PetDetailPageState extends State<PetDetailPage> {
                             onTap: () {
                               // 비디오를 클릭했을 때의 동작을 여기에 추가할 수 있습니다.
                             },
-                            child: VideoPlayerWidget(file: File(widget.pet.videos[index].path)),
+                            child: VideoPlayerWidget(url: widget.pet.videos[index]),
                           ),
                           if (_isDeleteMode)
                             Positioned(
@@ -244,9 +286,9 @@ class _PetDetailPageState extends State<PetDetailPage> {
 }
 
 class VideoPlayerWidget extends StatefulWidget {
-  final File file;
+  final String url;
 
-  const VideoPlayerWidget({super.key, required this.file});
+  const VideoPlayerWidget({super.key, required this.url});
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
@@ -258,7 +300,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.file(widget.file)
+    _controller = VideoPlayerController.network(widget.url)
       ..initialize().then((_) {
         setState(() {});
       });

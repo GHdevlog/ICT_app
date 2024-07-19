@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:ict_face_recog/models/pet.dart';
 
@@ -42,11 +41,19 @@ class PetGridItem extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: pet.images.isNotEmpty
-                        ? Image.file(
-                      File(pet.images.first.path),
+                        ? Image.network(
+                      pet.images.first,
                       height: 150,
                       width: 150,
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/dog_silhouette.jpg',
+                          height: 150,
+                          width: 150,
+                          fit: BoxFit.cover,
+                        );
+                      },
                     )
                         : Image.asset(
                       'assets/dog_silhouette.jpg',
