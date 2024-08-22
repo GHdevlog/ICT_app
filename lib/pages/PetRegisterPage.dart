@@ -123,6 +123,7 @@ class _RegisterPetPageState extends State<RegisterPetPage> {
   }
 
   Future<void> _uploadMedia(String petId, List<XFile> mediaFiles, bool isImage) async {
+    // 업로드 api 요청
     final uri = Uri.parse(isImage
         ? 'http://192.168.10.20:5000/upload_images'
         : 'http://192.168.10.20:5000/upload_videos');
