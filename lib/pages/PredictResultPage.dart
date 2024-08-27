@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 class PredictionResultPage extends StatelessWidget {
   final String? prediction;
 
@@ -15,11 +16,15 @@ class PredictionResultPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            // 예측 결과 텍스트
-            // prediction != null
-            //     ? Text('예측 결과: $prediction')
-            //     : const Text('예측 결과 없음'),
-            const Text("감사합니다."),
+            // 예측 결과 텍스트 ver.
+            prediction != null
+                ? Text('예측 결과: $prediction')
+                : const Text('예측 결과 없음'),
+
+            // 감사합니다 ver.
+            // const Text("감사합니다."),
+
+
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {

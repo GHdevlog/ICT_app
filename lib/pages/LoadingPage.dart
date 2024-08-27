@@ -7,7 +7,7 @@ class LoadingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('업로드 중...'),
+        title: const Text('매칭 진행 중...'),
       ),
       body: const Center(
         child: Column(
@@ -15,7 +15,8 @@ class LoadingPage extends StatelessWidget {
           children: <Widget>[
             CircularProgressIndicator(),
             SizedBox(height: 20),
-            Text("업로드 중입니다. 잠시만 기다려 주세요."),
+            Text("올려주신 이미지와 맞는 반려동물을 찾는 중입니다. "),
+            Text("잠시만 기다려 주세요."),
           ],
         ),
       ),

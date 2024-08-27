@@ -212,6 +212,12 @@ class _PetDetailPageState extends State<PetDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.pet.name),
+        actions: [
+          IconButton(
+            icon: Icon(_isDeleteMode ? Icons.delete_forever : Icons.delete),
+            onPressed: _toggleDeleteMode, // 삭제 모드 토글 함수
+          ),
+        ],
       ),
       body: Center(
         child: ListView(
@@ -228,18 +234,34 @@ class _PetDetailPageState extends State<PetDetailPage> {
               ),
               itemCount: widget.pet.images.length,
               itemBuilder: (context, index) {
-                return Image.network(
-                  widget.pet.images[index],  // 서버에서 반환된 전체 URL 사용
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/dog_silhouette.jpg',
+                return Stack(
+                  children: [
+                    Image.network(
+                      widget.pet.images[index],
                       height: 200,
+                      width: double.infinity,
                       fit: BoxFit.cover,
-                    );
-                  },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/dog_silhouette.jpg',
+                          height: 200,
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    ),
+                    if (_isDeleteMode)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                          onPressed: () => _deleteImage(index), // 이미지 삭제
+                        ),
+                      ),
+                  ],
                 );
               },
             )
@@ -262,8 +284,24 @@ class _PetDetailPageState extends State<PetDetailPage> {
               ),
               itemCount: widget.pet.videos.length,
               itemBuilder: (context, index) {
-                return VideoPlayerWidget(
-                  url: widget.pet.videos[index],  // 서버에서 반환된 전체 URL 사용
+                return Stack(
+                  children: [
+                    VideoPlayerWidget(
+                      url: widget.pet.videos[index],
+                    ),
+                    if (_isDeleteMode)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                          onPressed: () => _deleteVideo(index), // 비디오 삭제
+                        ),
+                      ),
+                  ],
                 );
               },
             )
@@ -271,12 +309,16 @@ class _PetDetailPageState extends State<PetDetailPage> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showPickerBottomSheet, // 선택지 표시하는 함수 호출
+        child: const Icon(Icons.add), // 플러스 아이콘
+      ),
     );
   }
 }
 
 
-class VideoPlayerWidget extends StatefulWidget {
+  class VideoPlayerWidget extends StatefulWidget {
   final String url;
 
   const VideoPlayerWidget({super.key, required this.url});

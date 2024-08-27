@@ -24,15 +24,20 @@ class _SignInPageState extends State<SignInPage> {
         password: _passwordController.text,
       );
 
+      if (!mounted) return; // 비동기 작업 후 mounted 상태를 확인합니다.
+
       setState(() {
         _statusMessage = '로그인 성공!';
       });
-      // 로그인 성공 시 홈 페이지로 이동
-      Navigator.pushReplacement(
-        context,
+
+      // 로그인 성공 시 네비게이션 스택을 모두 제거하고 홈 페이지로 이동
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const HomePage()),
+            (Route<dynamic> route) => false,
       );
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return; // 비동기 작업 후 mounted 상태를 확인합니다.
+
       setState(() {
         _statusMessage = e.message ?? '로그인 실패';
       });
