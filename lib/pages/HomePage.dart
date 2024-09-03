@@ -5,6 +5,7 @@ import 'DiaryPage.dart';
 import 'FindLostPetPage.dart';
 import 'PetRegisterPage.dart';
 import 'SettingPage.dart';
+import 'SignInPage.dart';
 import 'WalkPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -60,12 +61,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const SignInPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('SmileCompanion'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _signOut,
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: _navigateToSettingsPage,

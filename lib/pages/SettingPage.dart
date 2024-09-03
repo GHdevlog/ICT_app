@@ -28,7 +28,7 @@ class SettingsPage extends StatelessWidget {
                 await FirebaseAuth.instance.signOut();
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => SignInPage()),
+                  MaterialPageRoute(builder: (context) => const SignInPage()),
                 );
               },
               child: const Text('로그아웃'),
@@ -41,7 +41,7 @@ class SettingsPage extends StatelessWidget {
                   await user?.delete();
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => SignInPage()),
+                    MaterialPageRoute(builder: (context) => const SignInPage()),
                   );
                 } catch (e) {
                   print('회원 탈퇴 오류: $e');

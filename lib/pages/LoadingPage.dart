@@ -15,7 +15,7 @@ class LoadingPage extends StatelessWidget {
           children: <Widget>[
             CircularProgressIndicator(),
             SizedBox(height: 20),
-            Text("올려주신 이미지와 맞는 반려동물을 찾는 중입니다. "),
+            Text("주인을 찾는 중입니다. "),
             Text("잠시만 기다려 주세요."),
           ],
         ),
