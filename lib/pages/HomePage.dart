@@ -90,10 +90,13 @@ class _HomePageState extends State<HomePage> {
         // 상단 앱바에 표시할 제목
         title: const Text('SmileCompanion'),
         actions: [
-          // 로그아웃 버튼, 눌렀을 때 _signOut 메소드 호출
-          IconButton(
-            icon: const Icon(Icons.logout),
+          // 로그아웃 버튼을 테두리가 있는 OutlinedButton으로 변경
+          OutlinedButton(
             onPressed: _signOut,
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Color(0xFF9A9A9A)),  // 테두리 색상 설정
+            ),
+            child: const Text('로그아웃'),
           ),
           // 설정 페이지로 이동하는 버튼
           IconButton(
@@ -132,11 +135,11 @@ class _HomePageState extends State<HomePage> {
         // 현재 선택된 인덱스를 표시
         currentIndex: _selectedIndex,
         // 선택된 아이템 색상
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: const Color(0xFFFF6C05),
         // 선택되지 않은 아이템 색상
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: const Color(0xFFFF964A),
         // 배경색 설정
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFFFAE6),
         // 아이템이 눌렸을 때 _onItemTapped 메소드 호출
         onTap: _onItemTapped,
       ),
