@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'DiaryEntryDialog.dart'; // 일기 작성 다이얼로그를 불러오는 파일
 import 'DiaryContentDialog.dart'; // 일기 내용을 표시하는 다이얼로그를 불러오는 파일
-import '../models/event_marker.dart'; // 이벤트 마커를 위한 파일
+import '../models/event_marker.dart';
+import 'DiaryEntryPage.dart'; // 이벤트 마커를 위한 파일
 
 // 다이어리 페이지를 위한 StatefulWidget
 class DiaryPage extends StatefulWidget {
@@ -184,6 +185,7 @@ class _DiaryPageState extends State<DiaryPage> {
             ),
           ),
           // 선택된 날짜의 일기 목록 표시
+          // 선택된 날짜의 일기 목록 표시
           Expanded(
             child: userId == null
                 ? const Center(child: CircularProgressIndicator()) // 사용자 ID가 없으면 로딩 표시
@@ -194,7 +196,7 @@ class _DiaryPageState extends State<DiaryPage> {
                   .collection('diaries')
                   .where('date', isGreaterThanOrEqualTo: DateTime(_focusedDate.year, _focusedDate.month, 1)) // 해당 달의 일기
                   .where('date', isLessThanOrEqualTo: DateTime(_focusedDate.year, _focusedDate.month + 1, 0))
-                  .orderBy('date', descending: true) // 날짜 기준으로 내림차순 정렬
+                  .orderBy('date')
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
@@ -205,9 +207,12 @@ class _DiaryPageState extends State<DiaryPage> {
                   itemCount: documents.length, // 목록 개수
                   itemBuilder: (context, index) {
                     final doc = documents[index]; // 개별 문서
+                    final date = doc['date'].toDate(); // Firestore Timestamp를 DateTime으로 변환
+                    final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(date); // 'YYYY-MM-DD HH:MM' 형식으로 변환
+
                     return ListTile(
                       title: Text(doc['title']), // 일기 제목
-                      subtitle: Text(doc['date'].toDate().toString()), // 일기 날짜
+                      subtitle: Text(formattedDate), // 포맷된 일기 날짜와 시간 표시
                       onTap: () => showDiaryContentDialog(context, doc['title'], doc['content']), // 일기 내용 표시
                       trailing: IconButton(
                         icon: const Icon(Icons.delete), // 삭제 아이콘
@@ -218,13 +223,26 @@ class _DiaryPageState extends State<DiaryPage> {
                 );
               },
             ),
-          ),
+          )
         ],
       ),
       // 플로팅 액션 버튼을 눌러 새로운 일기 추가
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showAddEntryDialog(context, _selectedDate, userId, db, _loadDiaryEntries), // 일기 추가 다이얼로그 호출
-        child: const Icon(Icons.add), // 플로팅 버튼 아이콘
+        onPressed: () {
+          // 새 일기 작성 페이지로 이동
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DiaryEntryPage(
+                selectedDate: _selectedDate,
+                userId: userId,
+                db: db,
+                loadDiaryEntries: _loadDiaryEntries,
+              ),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
